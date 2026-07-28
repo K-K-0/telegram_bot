@@ -10,7 +10,7 @@ class RunLogger:
     def log(self, event, data):
         self.lines.append(json.dumps({"ts": time.time(), "event": event, **data}))
 
-    def finalise_and_upload(self) -> str:
+    def finalize_and_upload(self) -> str:
         content = "\n".join(self.lines)
         # Example: upload to a GCS bucket you made public (like task 1!)
         url = upload_to_gcs(f"logs/{self.run_id}.jsonl", content)

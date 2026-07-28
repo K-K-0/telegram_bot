@@ -1,4 +1,12 @@
-import os, json, httpx
+import os
+
+if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in os.environ:
+    creds_path = "/tmp/gcs-key.json"
+    with open(creds_path, "w") as f:
+        f.write(os.environ["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
+
+import json, httpx
 from fastapi import FastAPI, Request
 from agent import run_agent
 from logger import RunLogger
@@ -19,7 +27,7 @@ async def telegram_webhook(request: Request):
         return {"ok": True}
 
     chat_id = message["chat"]["id"]
-    text    = message["chat"]
+    text    = message["text"]         
 
     history = CHAT_HISTORY.setdefault(chat_id, [])
     history.append(text)
@@ -31,27 +39,29 @@ async def telegram_webhook(request: Request):
         result_json_str = await run_agent(history, logger)
     except Exception as e:
         logger.log("error", {"error": str(e)})
-        result_json_str = json.dumps({"answer": None, "log_url": logger.public_url()})
+        result_json_str = json.dumps({"answer": None, "log_url": "PENDING"})
 
-    log_url = logger.finalise_and_upload()
+    log_url = logger.finalize_and_upload()   
 
     try:
-        parsed = json.load(result_json_str)
+        parsed = json.loads(result_json_str)   
         parsed["log_url"] = log_url
-        result_json_str = json.dump(parsed)
-    except Exception:
-        pass
+        result_json_str = json.dumps(parsed)   
+    except Exception as e:
+        logger.log("error", {"error": f"final json parse failed: {e}"})
 
     await send_telegram_message(chat_id, result_json_str)
+    return {"ok": True}                        
+
 
 async def send_telegram_message(chat_id: int, text: str):
-    async with httpx.AsyncClient as client:
+    async with httpx.AsyncClient() as client:   
         await client.post(f"{TELEGRAM_API}/sendMessage", json={
             "chat_id": chat_id,
             "text": text
         })
 
+
 @app.get('/')
 async def health():
-    return {"status": "Alive"}
-
+    return {"status": "alive"}
