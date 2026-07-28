@@ -31,14 +31,14 @@ async def telegram_webhook(request: Request):
         result_json_str = await run_agent(history, logger)
     except Exception as e:
         logger.log("error", {"error": str(e)})
-        result_json_str = json.dump({"answer": "None", "log_url": logger.public_url()})
+        result_json_str = json.dumps({"answer": None, "log_url": logger.public_url()})
 
     log_url = logger.finalise_and_upload()
 
     try:
         parsed = json.load(result_json_str)
         parsed["log_url"] = log_url
-        result_json_str = json.dumps(parsed)
+        result_json_str = json.dump(parsed)
     except Exception:
         pass
 

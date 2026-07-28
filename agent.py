@@ -4,10 +4,10 @@ from tools import web_fetch, run_python
 
 client = OpenAI(
     api_key=os.environ["AIPIPE_TOKEN"],
-    base_url="https://aipipe.org/openai/v1"   # confirm exact path in your AI Pipe docs/dashboard
+    base_url="https://aipipe.org/openai/v1"
 )
 
-MODEL = "openai/gpt-4.1-mini"  # or "anthropic/claude-sonnet-4-6" if AI Pipe routes it
+MODEL = "gpt-4o-mini"  
 
 SYSTEM_PROMPT = """You are a data analysis agent. You will be given a conversation
 with a user; answer their LAST message only, using earlier messages as context.
