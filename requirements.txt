@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+httpx
+anthropic
+pandas
+numpy
+google-cloud-storage
