@@ -2,9 +2,12 @@ import os, json, re
 from openai import OpenAI
 from tools import web_fetch, run_python
 
-AIPIPE_TOKEN = os.environ["AIPIPE_TOKEN"]
-RESPONSES_URL = "https://aipipe.org/openrouter/v1/responses"
-MODEL = "openai/gpt-4.1-nano" 
+client = OpenAI(
+    api_key=os.environ["AIPIPE_TOKEN"],
+    base_url="https://aipipe.org/openai/v1"
+)
+
+MODEL = "gpt-4o-mini"  
 
 SYSTEM_PROMPT = """You are a data analysis agent. You will be given a conversation
 with a user; answer their LAST message only, using earlier messages as context.
